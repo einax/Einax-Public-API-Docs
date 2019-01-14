@@ -4,9 +4,10 @@
 
 * The base API endpoint is https://einax.com/api/v1/
 * All endpoints return JSON objects or array.
-* All timestamps are given in milliseconds
+* All timestamps sent to einax must be in milliseconds. 
+* Timestamps returned by server can sometimes be in seconds (This will be changed in future update in favor of unification. Until then refer to this docs for defenitive clarification)
 * For GET endpoints, parameters must be sent as a query string.
-* For POST endpoints, the parameters may be sent as request body
+* For POST endpoints, the parameters must be sent as request body.
 * Parameters may be sent in any order.
 * Any endpoint can return ERROR. The error payload is as follows:
 ```JS
@@ -243,7 +244,7 @@ POST /api/v1/history/trades/
 ```JS
 [  
    {  
-      "t":1545256499,               //server timestamp of the trade
+      "t":1545256499,               //server timestamp of the trade (in seconds)
       "p":"0.00020000000000000000", //price that was used for the trade
       "a":"1.70070000000000000000", //amount of assets traded
       "b":true                      /*true if buyer was also a market maker 
@@ -313,7 +314,7 @@ A string value describing time interval during which a single point of K-line da
       "c":"0.00020000000000000000", //Close price (current price if the candle is not closed)
       "h":"0.00020000000000000000", //Highest price reached during interval
       "l":"0.00020000000000000000", //Lowest price reached during interval
-      "t":1545306480,               //Timestamp
+      "t":1545306480,               //Timestamp (in seconds)
       "v":"0"                       //Volume of trades during interval measured in liquidity
    },
    {  
@@ -352,30 +353,30 @@ POST /api/v1/history/depth/
 	"bids": [                         //An array of buy orders
 		["0.00010000000000000000",      //Bid Price
 		 "1.00000000000000000000",      //Amount of assets to be bought at that price
-		 []                             //Ignore
+		  []                            //Ignore
 	],
 		["0.00000001000000000000",     
 		 "1000.00000000000000000000",
-		[]
+		 []
 		]
 	],
 
 	"asks": [                         //An array of sell orders
 		["0.00020000000000000000",      //Ask Price
 		 "18.29930000000000000000",     //Amount of assets to be sold at that price
-		[]                              //Ignore
+		 []                             //Ignore
 		],
 		["0.00050000000000000000",
 		 "7.79100000000000000000",
-		[]
+		 []
     ],
 		["1.00000000000000000000",
 		 "20.00000000000000000000",
-		[]
+		 []
 		],
 		["99.99900000000000000000",
 		 "5.00000000000000000000",
-		[]
+		 []
 		]
 	]
 }
