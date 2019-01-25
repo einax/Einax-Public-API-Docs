@@ -33,6 +33,40 @@
 * The signature is not case sensitive
 * totalParams is defined as the request body.
 * Besides trading timing precision recv_window and timestamp parameters are also provide additional layer of security meaning that request replay attack won't work unless it has been replayed within relatively small timeframe (equal to recv_window).
+Example:
+
+Using API Secret key ```ffbdab35db1d39e3b92190bfc9754034347c4b57```
+
+on following query string:
+```
+timestamp=1548399459020&recv_window=5000&market=TICO%3AETH&side=sell&type=limit&quantity=0.1&price=0.1
+```
+
+should return signature:
+```
+98617f2c60b54c42b01b01fa0c5f48da97d879985079cca5ed6156a31c0e02d1
+```
+resulting request that should be sent to server will be:
+
+```JS
+{
+  'timestamp': '1548399459020',
+  'recv_window': 5000,
+  'market': 'TICO:ETH',
+  'side': 'sell',
+  'type': 'limit',
+  'quantity': '0.1',
+  'price': '0.1',
+  'signature': '98617f2c60b54c42b01b01fa0c5f48da97d879985079cca5ed6156a31c0e02d1'
+}
+```
+Don't forget to attach request header with your X-MBX-APIKEY:
+```
+{'X-MBX-APIKEY': '3e2cc318b90b99be9efe903a5f18dee4162109bf'}
+```
+Server will respond with
+```{"message":["239"]}```
+
 
 ## Public API endpoints
 
@@ -380,4 +414,204 @@ POST /api/v1/history/depth/
 		]
 	]
 }
+```
+
+## Signed API endpoints
+
+### Create order
+
+Creates new order
+
+```
+POST /api/v1/bots/order/create/
+```
+
+**Parameters:**
+
+__For limit orders:__
+
+|Name           |Type      |Mandatory |Description|Example|
+| ------------- |:--------:|:--------:|-----------|:-----:|
+|market         |STRING    |YES       | Market name consists of two assets symbols, separated by ":" (first is the symbol of asset traded and the second is liquidity asset symbol).  | CETH:ETH |
+|side           |ENUM      |YES       |"buy" for buy orders or "sell" for sell orders| sell   |
+|type           |ENUM      |YES       |"limit"- for limit orders, "market" - for market orders (future types and additional order flags will be added in later updates)|limit   |
+|quantity       |FLOAT     |YES       |Amount of tokens to be bought or sold           |1.322   |
+|price          |FLOAT     |YES       |Price per token           |0.00237   |
+|recv_window    |INT       |NO        | Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|5000   |
+|timestamp      |TIMESTAMP |YES       |Your local timestamp that will be used in recv_window checks.           | 1545306615  |
+|signature      |STRING    |YES   |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |3e2cc318b90b99be9efe903a5f18dee4162109bf   |
+
+Please note that Limit orders by default have following properties:
+* Good till canceled
+* Allow taker
+
+ This means that:
+ * If valid limit order can be placed to order book it will be placed to the order book and remain in it until canceled by user or due to exchange maintenance/market closure (correlates with GDC order standard).
+ * If valid limit order CAN be executed with another order it will be immediately executed as taker order.
+
+Future updates will add more flexibility to enable/disable those options.
+
+
+
+__For market orders:__
+
+|Name           |Type      |Mandatory |Description|Example|
+| ------------- |:--------:|:--------:|-----------|:-----:|
+|market         |STRING    |YES       |Market name consists of two assets symbols, separated by ":" (first is the symbol of asset traded and the second is liquidity asset symbol).           |ZRX:ETH   |
+|side           |ENUM      |YES       |"buy" for buy orders or "sell" for sell orders           | buy  |
+|type           |ENUM      |YES       |"limit"- for limit orders, "market" - for market orders (future types and additional order flags will be added in later updates)           |market   |
+|quantity       |FLOAT     |NO        |Amount of tokens to be bought or sold. Either quantity or limit have to be set. If quantity is set, limit must be omitted (this is subject to change in future versions)            | 1.648  |
+|limit★  |FLOAT |NO        |Amount of liquidity that will be used to buy tokens (for buy orders) or liquidity threshold upon which tokens will be sold (for sell orders) |1.648*   |
+|recv_window    |INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.          |5000   |
+|timestamp      |TIMESTAMP |YES       | Your local timestamp that will be used in recv_window checks.            |1545306615   |
+|signature      |STRING    |YES   |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |3e2cc318b90b99be9efe903a5f18dee4162109bf   |
+
+★ limit - parameter specific to market orders. It limits order execution by the amount of liquidity used to execute given order. To better understand how to use this parameter read following examples:
+
+```
+Assuming that we are on the market ZRX:ETH and placing market buy order with limit = 1
+This market order will continue buying ZRX token from orders in order book until 1 ETH worth of tokens is bought or order book become empty
+```
+
+```
+Assuming that we are on the market ZRX:ETH and placing market sell order with limit = 1
+This market order will continue selling ZRX to the orders in order book until total of 1 ETH is received or order book become empty
+```
+
+Note that in current version of the API, either limit or quantity shall be present to
+create valid market order. If both parameters are present order will be rejected. This
+logic may be changed in future updates.
+
+**ENUM definition:**
+
+```
+side
+```
+A string value describing if new order will be buying or selling an asset. Side
+values allowed are:
+* buy
+* sell
+
+```
+type
+```
+A string describing the type of the order. Currently two types are supported (limit and market). And
+the third type - Stop will become available at a later date. Currently supported values are:
+* limit
+* market
+
+limit orders MUST contain argument price and quantity. Market orders MUST omit price and have either quantity
+or limit set (the other one must be omitted)
+
+**Response:**
+
+After sending a request to post order, response with message code will be generated.
+
+```JS
+{
+"message":["239"]
+}
+```
+
+Please note that Order ID is NOT returned in the response because even valid requests can sometimes be rejected at the order processing stage.
+Receiving ```239``` does not mean that your order was placed in the order book or executed. In order to make sure your order is present
+on the market please refer to /api/v1/bots/orders/ endpoint or connect to websocket to receive real time updates.
+
+### Get all open orders
+
+```
+POST /api/v1/bots/orders/
+```
+
+
+**Parameters:**
+|Name           |Type           |Mandatory |Description|Example|
+| ------------- |:-------------:|:--------:|-----------|:-----:|
+|recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
+|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
+|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |2c13e77bcd1ba34794a1b0bfd0955574a429bf6e0d240c0d966d5547ae181032|
+
+### Get last transaction history
+```
+POST /api/v1/bots/transactions/
+```
+
+**Parameters:**
+|Name           |Type           |Mandatory |Description|Example|
+| ------------- |:-------------:|:--------:|-----------|:-----:|
+|recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
+|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
+|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |2c13e77bcd1ba34794a1b0bfd0955574a429bf6e0d240c0d966d5547ae181032|
+
+
+
+### Cancel order
+
+Cancels active order or orders. Returns array of orders that was canceled.
+
+```
+POST /api/v1/bots/order/cancel/
+```
+
+**Parameters:**
+|Name           |Type           |Mandatory |Description|Example|
+| ------------- |:-------------:|:--------:|-----------|:-----:|
+| orders_id     |ARRAY          |YES       |Array of order identifiers | ["218950689200489268249418721092036647865"]  |
+||recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
+|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
+|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |2c13e77bcd1ba34794a1b0bfd0955574a429bf6e0d240c0d966d5547ae181032|   
+
+**Response:**
+
+```JS
+[{
+	"286282882923389836404110568775499338172": "Order was canceled"
+}, {
+	"218950689200489268249418721092036647865": "Order was canceled"
+}]
+```
+
+### Account information
+
+Returns array of user account information.
+
+```
+POST /api/v1/bots/balances/
+```
+
+**Parameters:**
+|Name           |Type           |Mandatory |Description|Example|
+|recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
+|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
+|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |2c13e77bcd1ba34794a1b0bfd0955574a429bf6e0d240c0d966d5547ae181032|
+**Response:**
+```JS
+[{
+	"spendable": "4.417571700000000e-5",                          //Available balance
+	"locked": "5.66831000000000000e-3",                           //Locked balance
+	"ticker": "ETH",                                              //Currency symbol
+	"sort_order": 1500,                                           //Ignore
+	"active_withdraw": true,                                      //Indicates that withdrawals are enabled for this currency
+	"active_deposit": true,                                       //Indicates that deposits are enabled for this currency
+	"parent__ticker": null,                                       //Indicates symbol of parent currency
+	"wallets__addr": "0x382d35c3498a8429e788c4379545efd6ba657f88" //Your deposit address
+}, {
+	"spendable": "78.91020000000000000000",
+	"locked": "11.09700000000000000000",
+	"ticker": "WT",
+	"sort_order": 2500,
+	"active_withdraw": true,
+	"active_deposit": true,
+	"parent__ticker": "ETH",
+	"wallets__addr": null
+},  {
+	"spendable": "0.49950000000000000000",
+	"locked": "0.99929989000000000000",
+	"ticker": "TICO",
+	"sort_order": 24500,
+	"active_withdraw": true,
+	"active_deposit": true,
+	"parent__ticker": "ETH",
+	"wallets__addr": null
+}]
 ```
