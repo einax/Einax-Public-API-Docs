@@ -122,8 +122,8 @@ GET /api/v1/finance/currencies/
 	"active_deposit": true,           /*Shows if deposits for this currency are enabled 
 	at the time of request*/
   
-	"decimals": "1000000000000000000" /*Shows how many elementary units of currency contained in single token
-	(number of Satoshis in 1 BTC or number of Weis in 1 ETH) */
+	"decimals": "1000000000000000000" /*Shows how many elementary units of currency 
+	contained in single token (number of Satoshis in 1 BTC or number of Weis in 1 ETH) */
   
 }, {
 	"ticker": "WT",
@@ -182,11 +182,13 @@ GET api/v1/finance/markets/
   
 	"min_volume_limit": "0.00001",              /*A minimum amount of liquidity that have to be used 
 	to create limit order (i.e. you can't create buy order that buys an amount of tokens less then 
-	0.00001 worth of ETH, and you can't sell an amount that will total in 0.00001 ETH after being sold)*/
+	0.00001 worth of ETH, and you can't sell an amount that will total in 0.00001 ETH after being 
+	sold)*/
   
 	"min_volume_market": "0.00001"              /*A minimum amount of liquidity that have to be used 
 	to create market order (i.e. you can't create buy order that buys an amount of tokens less then 
-	0.00001 worth of ETH, and you can't sell an amount that will total in 0.00001 ETH after being sold)*/
+	0.00001 worth of ETH, and you can't sell an amount that will total in 0.00001 ETH after being 
+	sold)*/
   
 }, {
 	"first_currency": "CETH",
@@ -439,7 +441,7 @@ __For limit orders:__
 |price          |FLOAT     |YES       |Price per token           |0.00237   |
 |recv_window    |INT       |NO        | Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|5000   |
 |timestamp      |TIMESTAMP |YES       |Your local timestamp that will be used in recv_window checks.           | 1545306615  |
-|signature      |STRING    |YES   |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |3e2cc318b90b99be9efe903a5f18dee4162109bf   |
+|signature      |STRING    |YES   |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |   |
 
 Please note that Limit orders by default have following properties:
 * Good till canceled
@@ -464,7 +466,7 @@ __For market orders:__
 |limit★  |FLOAT |NO        |Amount of liquidity that will be used to buy tokens (for buy orders) or liquidity threshold upon which tokens will be sold (for sell orders) |1.648*   |
 |recv_window    |INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.          |5000   |
 |timestamp      |TIMESTAMP |YES       | Your local timestamp that will be used in recv_window checks.            |1545306615   |
-|signature      |STRING    |YES   |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |3e2cc318b90b99be9efe903a5f18dee4162109bf   |
+|signature      |STRING    |YES   |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |   |
 
 ★ limit - parameter specific to market orders. It limits order execution by the amount of liquidity used to execute given order. To better understand how to use this parameter read following examples:
 
@@ -525,11 +527,12 @@ POST /api/v1/bots/orders/
 
 
 **Parameters:**
+
 |Name           |Type           |Mandatory |Description|Example|
 | ------------- |:-------------:|:--------:|-----------|:-----:|
 |recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
 |timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
-|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |2c13e77bcd1ba34794a1b0bfd0955574a429bf6e0d240c0d966d5547ae181032|
+|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   ||
 
 ### Get last transaction history
 ```
@@ -537,29 +540,29 @@ POST /api/v1/bots/transactions/
 ```
 
 **Parameters:**
+
 |Name           |Type           |Mandatory |Description|Example|
 | ------------- |:-------------:|:--------:|-----------|:-----:|
 |recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
 |timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
-|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |2c13e77bcd1ba34794a1b0bfd0955574a429bf6e0d240c0d966d5547ae181032|
-
-
+|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   ||
 
 ### Cancel order
 
-Cancels active order or orders. Returns array of orders that was canceled.
+Cancels active order or orders. Returns an array of orders that was canceled.
 
 ```
 POST /api/v1/bots/order/cancel/
 ```
 
 **Parameters:**
+
 |Name           |Type           |Mandatory |Description|Example|
 | ------------- |:-------------:|:--------:|-----------|:-----:|
 | orders_id     |ARRAY          |YES       |Array of order identifiers | ["218950689200489268249418721092036647865"]  |
 ||recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
 |timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
-|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |2c13e77bcd1ba34794a1b0bfd0955574a429bf6e0d240c0d966d5547ae181032|   
+|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   ||   
 
 **Response:**
 
@@ -580,10 +583,13 @@ POST /api/v1/bots/balances/
 ```
 
 **Parameters:**
+
 |Name           |Type           |Mandatory |Description|Example|
-|recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
+| ------------- |:-------------:|:--------:|-----------|:-----:|
+|recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|5000|
 |timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
-|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |2c13e77bcd1ba34794a1b0bfd0955574a429bf6e0d240c0d966d5547ae181032|
+|signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   ||
+
 **Response:**
 ```JS
 [{
