@@ -33,6 +33,7 @@
 * The signature is not case sensitive
 * totalParams is defined as the request body.
 * Besides trading timing precision recv_window and timestamp parameters are also provide additional layer of security meaning that request replay attack won't work unless it has been replayed within relatively small timeframe (equal to recv_window).
+
 Example:
 
 Using API Secret key ```ffbdab35db1d39e3b92190bfc9754034347c4b57```
@@ -67,6 +68,7 @@ Don't forget to attach request header with your X-MBX-APIKEY:
 Server will respond with
 ```{"message":["239"]}```
 
+Example Python code: https://github.com/einax/Einax-Public-API-Docs/blob/master/correct_signature_generation.py
 
 ## Public API endpoints
 
