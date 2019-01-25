@@ -463,7 +463,7 @@ __For market orders:__
 |side           |ENUM      |YES       |"buy" for buy orders or "sell" for sell orders           | buy  |
 |type           |ENUM      |YES       |"limit"- for limit orders, "market" - for market orders (future types and additional order flags will be added in later updates)           |market   |
 |quantity       |FLOAT     |NO        |Amount of tokens to be bought or sold. Either quantity or limit have to be set. If quantity is set, limit must be omitted (this is subject to change in future versions)            | 1.648  |
-|limit★  |FLOAT |NO        |Amount of liquidity that will be used to buy tokens (for buy orders) or liquidity threshold upon which tokens will be sold (for sell orders) |1.648*   |
+|limit  |FLOAT |NO★        |Amount of liquidity that will be used to buy tokens (for buy orders) or liquidity threshold upon which tokens will be sold (for sell orders) |1.648*   |
 |recv_window    |INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.          |5000   |
 |timestamp      |TIMESTAMP |YES       | Your local timestamp that will be used in recv_window checks.            |1545306615   |
 |signature      |STRING    |YES   |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |   |
