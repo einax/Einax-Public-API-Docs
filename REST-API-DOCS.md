@@ -318,7 +318,7 @@ POST /api/v1/history/trades/
 |market         |  STRING       |YES          |Market name consists of two assets symbols, separated by ":" (first is the symbol of asset traded and the second is liquidity asset symbol).|  CETH:ETH    |
 |limit          |INT            |YES       |Number of data points (candles) to fetch. You can set this number to get maximum of 500 most recent candles.|2|
 |interval   | ENUM  | YES  |  Time interval  between data points. |1m   |  
-|start   |TIMESTAMP   |YES   |Timestamp of the last candle to be fetched. Example request will fetch 2 candles of which most recent will have timestamp < 1545306615   |1545306615   |
+|start   |TIMESTAMP   |YES   |Timestamp of the last candle to be fetched. Example request will fetch 2 candles of which most recent will have timestamp < 1545306615   |1545306615
 
 
 **ENUM definition:**
@@ -467,7 +467,7 @@ __For market orders:__
 |quantity       |FLOAT     |NO        |Amount of tokens to be bought or sold. Either quantity or limit have to be set. If quantity is set, limit must be omitted (this is subject to change in future versions)            | 1.648  |
 |limit  |FLOAT |NO★        |Amount of liquidity that will be used to buy tokens (for buy orders) or liquidity threshold upon which tokens will be sold (for sell orders) |1.648*   |
 |recv_window    |INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.          |5000   |
-|timestamp      |TIMESTAMP |YES       | Your local timestamp that will be used in recv_window checks.            |1545306615   |
+|timestamp      |TIMESTAMP |YES       | Your local timestamp that will be used in recv_window checks.            |1545306615000|
 |signature      |STRING    |YES   |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   |   |
 
 ★ limit - parameter specific to market orders. It limits order execution by the amount of liquidity used to execute given order. To better understand how to use this parameter read following examples:
@@ -533,7 +533,7 @@ POST /api/v1/bots/orders/
 |Name           |Type           |Mandatory |Description|Example|
 | ------------- |:-------------:|:--------:|-----------|:-----:|
 |recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
-|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
+|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615000     |
 |signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   ||
 
 ### Get last transaction history
@@ -546,7 +546,7 @@ POST /api/v1/bots/transactions/
 |Name           |Type           |Mandatory |Description|Example|
 | ------------- |:-------------:|:--------:|-----------|:-----:|
 |recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
-|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
+|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615000     |
 |signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   ||
 
 ### Cancel order
@@ -563,7 +563,7 @@ POST /api/v1/bots/order/cancel/
 | ------------- |:-------------:|:--------:|-----------|:-----:|
 | orders_id     |ARRAY          |YES       |Array of order identifiers | ["218950689200489268249418721092036647865"]  |
 ||recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
-|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
+|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615000     |
 |signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   ||   
 
 **Response:**
@@ -589,7 +589,7 @@ POST /api/v1/bots/balances/
 |Name           |Type           |Mandatory |Description|Example|
 | ------------- |:-------------:|:--------:|-----------|:-----:|
 |recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|5000|
-|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615        |
+|timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615000     |
 |signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   ||
 
 **Response:**
