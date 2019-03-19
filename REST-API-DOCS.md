@@ -562,7 +562,7 @@ POST /api/v1/bots/order/cancel/
 |Name           |Type           |Mandatory |Description|Example|
 | ------------- |:-------------:|:--------:|-----------|:-----:|
 | orders_id     |ARRAY          |YES       |Array of order identifiers | ["218950689200489268249418721092036647865"]  |
-||recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
+|recv_window    |     INT       |NO        |Specifies that the request must be processed within a certain number of milliseconds or be rejected by the server. Default value is 5000. If between timestamp and server time is more than this value, order will not be processed.|   5000    |
 |timestamp      |TIMESTAMP      |YES       | Your local timestamp that will be used in recv_window checks.          | 1545306615000     |
 |signature      |STRING         |YES       |result of ```HMAC SHA256``` where ```secretKey``` used as key and request body as value of HMAC operation   ||   
 
